@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screen/auth_screen.dart';
 
 class AuthForm extends StatefulWidget {
   const AuthForm({super.key});
@@ -8,6 +9,20 @@ class AuthForm extends StatefulWidget {
 }
 
 class _AuthFormState extends State<AuthForm> {
+   AuthForm(
+    this.submitFn,
+    this.isLoading,
+  );
+
+  final bool isLoading;
+  final void Function(
+    String email,
+    String password,
+    String userName,
+    bool isLogin,
+    BuildContext ctx,
+  ) submitFn;
+
   @override
   Widget build(BuildContext context) {
     return Center(
