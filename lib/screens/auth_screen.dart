@@ -29,19 +29,19 @@ class _AuthScreenState extends State<AuthScreen> {
       });
 
       if (isLogin) {
-        // ✅ Modern sign-in
+     
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       } else {
-        // ✅ Modern sign-up
+       
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        // ✅ Save user info to Firestore
+    
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user!.uid)
