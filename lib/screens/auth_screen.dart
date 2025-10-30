@@ -51,21 +51,24 @@ class _AuthScreenState extends State<AuthScreen> {
         });
       }
     } on FirebaseAuthException catch (err) {
-      var message = 'An error occurred, please check your credentials!';
+  var message = 'An error occurred, please check your credentials!';
 
-      if (err.message != null) {
-        message = err.message!;
-      }
+  if (err.message != null) {
+    message = err.message!;
+  }
 
-      ScaffoldMessenger.of(ctx).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Theme.of(ctx).colorScheme.error,
-        ),
-      );
-      setState(() {
-        _isLoading = false;
-      });
+  if (!mounted) return; //mount guard for build context used across async gaps (self improvisation)
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Theme.of(context).colorScheme.error,
+    ),
+  );
+
+  setState(() {
+    _isLoading = false;
+  });
     } catch (err) {
       debugPrint(err.toString());
       setState(() {

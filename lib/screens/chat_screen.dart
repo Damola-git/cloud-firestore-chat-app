@@ -1,3 +1,5 @@
+import 'package:chat_app/widgets/chat/messages.dart';
+import 'package:chat_app/widgets/chat/new_message.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,8 +27,6 @@ class ChatScreen extends StatelessWidget {
                       Text('Logout'),
                     ],
                   ),
-                
-                
               ),
             ],
             onChanged: (itemIdentifier) {
@@ -37,34 +37,15 @@ class ChatScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('chat')
-            .doc('SrErmN1ut0ycP2BmAzJ2')
-            .collection('messages')
-            .snapshots(),
-        builder: (context, streamSnapshot) {
-          if (streamSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final documents = streamSnapshot.data?.docs ?? [];
-
-          if (documents.isEmpty) {
-            return const Center(child: Text('No messages yet...'));
-          }
-
-          return ListView.builder(
-            itemCount: documents.length,
-            itemBuilder: (ctx, index) {
-              final messageData = documents[index].data() as Map<String, dynamic>;
-              return Container(
-                padding: const EdgeInsets.all(8),
-                child: Text(messageData['text'] ?? ''),
-              );
-            },
-          );
-        },
+      body:Container(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Messages(),
+            ),
+            NewMessage(),
+          ],
+        ),
       ),
     );
   }
