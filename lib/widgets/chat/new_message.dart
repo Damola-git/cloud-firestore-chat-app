@@ -37,6 +37,8 @@ class _NewMessageState extends State<NewMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final isTyping = _enteredMessage.trim().isNotEmpty;
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(8),
@@ -54,16 +56,17 @@ class _NewMessageState extends State<NewMessage> {
                 setState(() => _enteredMessage = value);
               },
               onSubmitted: (_) {
-                if (_enteredMessage.trim().isNotEmpty) _sendMessage();
+                if (isTyping) _sendMessage();
               },
             ),
           ),
           const SizedBox(width: 8),
           IconButton(
-            color: Theme.of(context).colorScheme.primary,
             icon: const Icon(Icons.send),
-            onPressed:
-                _enteredMessage.trim().isEmpty ? null : _sendMessage,
+            color: isTyping
+                ? Colors.greenAccent[400] 
+                : Colors.grey, 
+            onPressed: isTyping ? _sendMessage : null,
           ),
         ],
       ),

@@ -14,27 +14,27 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isMe ? Colors.grey[300] : colorScheme.primaryContainer,
+            color: isMe
+                ?  theme.appBarTheme.backgroundColor
+                : Colors.grey[300] , 
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(12),
               topRight: const Radius.circular(12),
-              bottomLeft: isMe
-                  ? const Radius.circular(12)
-                  : const Radius.circular(0),
-              bottomRight: isMe
-                  ? const Radius.circular(0)
-                  : const Radius.circular(12),
+              bottomLeft:
+                  isMe ? const Radius.circular(12) : const Radius.circular(0),
+              bottomRight:
+                  isMe ? const Radius.circular(0) : const Radius.circular(12),
             ),
           ),
-          width: 160,
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          width: 180,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           child: Column(
             crossAxisAlignment:
@@ -44,14 +44,16 @@ class MessageBubble extends StatelessWidget {
                 userName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isMe ? Colors.black87 : colorScheme.onPrimaryContainer,
+                  fontSize: 16, 
+                  color: isMe ?   Colors.white : Colors.black87, 
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
                 message,
                 style: TextStyle(
-                  color: isMe ? Colors.black87 : colorScheme.onPrimaryContainer,
+                  fontSize: 15,
+                  color: isMe ? Colors.black87 : Colors.white,
                 ),
                 textAlign: isMe ? TextAlign.end : TextAlign.start,
               ),

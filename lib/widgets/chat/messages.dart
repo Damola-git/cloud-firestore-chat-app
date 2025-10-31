@@ -26,7 +26,7 @@ class Messages extends StatelessWidget {
         }
 
         if (!chatSnapshot.hasData || chatSnapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No messages yet.'));
+          return const Center(child: Text('No messages yet.', style: TextStyle(fontSize: 16, color: Colors.white)));
         }
 
         final chatDocs = chatSnapshot.data!.docs;
