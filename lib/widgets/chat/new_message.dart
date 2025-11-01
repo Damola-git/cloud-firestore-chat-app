@@ -24,11 +24,16 @@ class _NewMessageState extends State<NewMessage> {
         .doc(user.uid)
         .get();
 
+    final userImage = userData.data()?['imageData'] ?? '';
+
+    
+
     await FirebaseFirestore.instance.collection('chat').add({
       'text': _enteredMessage.trim(),
       'createdAt': Timestamp.now(),
       'userId': user.uid,
       'username': userData.data()?['username'] ?? 'Unknown',
+      'userImageData': userImage,
     });
 
     _controller.clear();
@@ -63,9 +68,7 @@ class _NewMessageState extends State<NewMessage> {
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.send),
-            color: isTyping
-                ? Colors.greenAccent[400] 
-                : Colors.grey, 
+            color: isTyping ? Colors.greenAccent[400] : Colors.grey,
             onPressed: isTyping ? _sendMessage : null,
           ),
         ],
