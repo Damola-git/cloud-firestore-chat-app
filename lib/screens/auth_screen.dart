@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_storage/firebase_storage.dart'; // add this
 import '../widgets/auth/auth_form.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -17,6 +17,31 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
+
+  // ✅ Handles token saving & refreshing automatically
+  Future<void> _saveUserToken(String userId) async {
+    try {
+      final fcm = FirebaseMessaging.instance;
+      final token = await fcm.getToken();
+
+      if (token != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'fcmToken': token});
+      }
+
+      // 🔁 Keep token updated if it ever refreshes
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'fcmToken': newToken});
+      });
+    } catch (e) {
+      debugPrint('⚠️ Error saving FCM token: $e');
+    }
+  }
 
   Future<void> _submitAuthForm(
     String email,
@@ -34,46 +59,41 @@ class _AuthScreenState extends State<AuthScreen> {
       });
 
       if (isLogin) {
+        // 🔹 Sign in
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
+
+        // ✅ Save/update FCM token for existing user
+        await _saveUserToken(authResult.user!.uid);
       } else {
+        // 🔹 Sign up
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-  final bytes = await image!.readAsBytes();
-  final base64Image = base64Encode(bytes);
+        // Convert image to base64 string
+        final bytes = await image!.readAsBytes();
+        final base64Image = base64Encode(bytes);
 
-  // 🔹 Store Base64 image string in Firestore
- 
-        // final ref = FirebaseStorage.instance
-            // .ref()
-            // .child('user_image')
-            // .child('${authResult.user!.uid}.jpg');
-
-        
-        // await ref.putFile(image!);
-        // final url = await ref.getDownloadURL();
-
+        // Save user data in Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user!.uid)
             .set({
           'username': username,
           'email': email,
-          // 'imageUrl': url,
-          'imageData': base64Image, 
+          'imageData': base64Image,
         });
+
+        // ✅ Save FCM token for new user
+        await _saveUserToken(authResult.user!.uid);
       }
     } on FirebaseAuthException catch (err) {
-      var message = 'An error occurred, please check your credentials!';
-
-      if (err.message != null) {
-        message = err.message!;
-      }
+      var message = 'An error occurred, please check your credentials.';
+      if (err.message != null) message = err.message!;
 
       if (!mounted) return;
 
@@ -83,15 +103,14 @@ class _AuthScreenState extends State<AuthScreen> {
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
-
-      setState(() {
-        _isLoading = false;
-      });
     } catch (err) {
-      debugPrint(err.toString());
-      setState(() {
-        _isLoading = false;
-      });
+      debugPrint('❌ Auth error: $err');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

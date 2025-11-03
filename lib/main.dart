@@ -1,18 +1,35 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 import '../screens/auth_screen.dart';
 import '../screens/chat_screen.dart';
 
-void main() async {
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+// Handle background message (log, analytics, local DB, etc.)
+debugPrint('BG message: \\${message.messageId} data=\\${message.data}');
+}
+Future <void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  
   runApp(const MyApp());
 }
+
+Future<void> checkInitialMessage() async {
+final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+if (initialMessage != null) {
+// Navigate based on payload
+}
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

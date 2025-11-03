@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -24,18 +27,54 @@ class _NewMessageState extends State<NewMessage> {
         .doc(user.uid)
         .get();
 
+    final username = userData.data()?['username'] ?? 'Unknown';
     final userImage = userData.data()?['imageData'] ?? '';
 
-    
-
+    // 🟢 1. Save message to Firestore
     await FirebaseFirestore.instance.collection('chat').add({
       'text': _enteredMessage.trim(),
       'createdAt': Timestamp.now(),
       'userId': user.uid,
-      'username': userData.data()?['username'] ?? 'Unknown',
+      'username': username,
       'userImageData': userImage,
     });
 
+    
+    final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
+
+    // Just pick the first user that isn't the current one (for testing)
+    final recipientDoc = usersSnapshot.docs.firstWhere(
+      (doc) => doc.id != user.uid,
+      orElse: () => throw Exception('No recipient found!'),
+    );
+
+    final recipientToken = recipientDoc['fcmToken'];
+
+    // 🟣 3. Send push notification via your Node.js server
+    try {
+      const serverUrl = 'http://10.0.2.2:3000/sendNotification'; 
+ 
+
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'token': recipientToken,
+          'title': username,
+          'body': _enteredMessage.trim(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ Notification sent successfully!');
+      } else {
+        debugPrint('❌ Failed to send notification: ${response.body}');
+      }
+    } catch (error) {
+      debugPrint('⚠️ Error sending notification: $error');
+    }
+
+    // 🟠 4. Clear input
     _controller.clear();
     setState(() => _enteredMessage = '');
   }
