@@ -10,7 +10,7 @@ import '../screens/chat_screen.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-// Handle background message (log, analytics, local DB, etc.)
+// Handle background message (log, analytics, local DB, etc)
 debugPrint('BG message: \\${message.messageId} data=\\${message.data}');
 }
 Future <void> main() async {
