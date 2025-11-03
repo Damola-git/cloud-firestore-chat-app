@@ -8,12 +8,22 @@ plugins {
 
 android {
     namespace = "com.example.chat_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
+
+    defaultConfig {
+    applicationId = "com.example.chat_app"
+    minSdk = 24
+    targetSdk = 34
+    versionCode = 1
+    versionName = "1.0"
+    }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -49,4 +59,10 @@ dependencies {
 
   // Add the dependency for the Firestore library
   implementation("com.google.firebase:firebase-firestore")
+
+implementation("com.google.firebase:firebase-messaging")
+
+  // 🔹 Add this line for Java 8+ support
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
 }
